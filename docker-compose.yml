@@ -1,0 +1,58 @@
+version: '3'
+services:
+  katel-db:
+    image: postgres:16.3-alpine3.19
+    container_name: katel-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PSWD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '5543:5432'
+    volumes:
+      - katel-db:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: 'pg_isready'
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: always
+
+  katel-s3:
+    image: minio/minio
+    container_name: katel-s3
+    env_file:
+      - .env
+    environment:
+      MINIO_ROOT_USER: ${S3_USER}
+      MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
+    ports:
+      - '5500:9000'
+      - '5501:9001'
+    command: server --address ":9000" --console-address ":9001" /export
+    volumes:
+      - katel_s3_data:/export
+      - katel_s3_config:/root/.minio
+    networks:
+      - app-network
+    healthcheck:
+      test: timeout 5s bash -c ':> /dev/tcp/127.0.0.1/9000' || exit 1
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: always
+
+networks:
+  app-network:
+    external: true
+
+volumes:
+  node_modules_app:
+  katel_s3_data:
+  katel_s3_config:
+  katel-db:
+    driver: local
