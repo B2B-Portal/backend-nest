@@ -7,7 +7,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { LocalStrategy } from './strategy/local.strategy';
 import { UserService } from 'src/user/user.service';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -30,7 +29,7 @@ import { User } from 'src/user/entities/user.entity';
       }),
     }),
   ],
-  providers: [AuthResolver, AuthService, UserService, GqlAuthGuard]
+  providers: [AuthResolver, AuthService, UserService, GqlAuthGuard, JwtStrategy]
 })
 
 export class AuthModule {}
