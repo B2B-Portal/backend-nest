@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { SigninUserInput } from 'src/auth/dto/singin-user.input';
-import { SignupResponse } from 'src/auth/dto/signup-response';
+import { SignupResponse } from 'src/auth/dto/signup-response.dto';
 
 @Injectable()
 export class UserService {

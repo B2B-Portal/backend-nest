@@ -1,15 +1,14 @@
 import {
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
-import { SigninResponse } from './dto/signin-response';
-import { SignupResponse } from './dto/signup-response';
+import { SigninResponse } from './dto/signin-response.dto';
+import { SignupResponse } from './dto/signup-response.dto';
 import { SignupUserInput } from './dto/signup-user.input';
 import { SigninUserInput } from './dto/singin-user.input';
 

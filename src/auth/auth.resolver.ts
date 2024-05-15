@@ -4,9 +4,9 @@ import { Args, Context, GqlContextType, Mutation, Resolver } from '@nestjs/graph
 import { AuthService } from './auth.service';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
 
-import { SigninResponse } from './dto/signin-response';
+import { SigninResponse } from './dto/signin-response.dto';
 import { SigninUserInput } from './dto/singin-user.input';
-import { SignupResponse } from './dto/signup-response';
+import { SignupResponse } from './dto/signup-response.dto';
 import { SignupUserInput } from './dto/signup-user.input';
 import { User } from 'src/user/entities/user.entity';
 import { CurrentUser } from './decorators/get-current-user.decorator';
