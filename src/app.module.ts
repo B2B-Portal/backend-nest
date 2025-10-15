@@ -1,28 +1,15 @@
-import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GraphQLModule } from '@nestjs/graphql';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 
 import { UserModule } from './user/user.module';
-import { dataSourceOptions } from './config/ormconfig';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      playground: false,
-      sortSchema: true,
-      driver: ApolloDriver,
-      context: ({ req }) => ({ req }),
-      autoSchemaFile: join(process.cwd(), './schema.gql'),
-      plugins: [ApolloServerPluginLandingPageLocalDefault()]
-    }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -31,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
         type: 'postgres',
         host: configService.get('DB_HOST'),
         port: configService.get('DB_PORT'),
-        username:configService.get('DB_USER'),
+        username: configService.get('DB_USER'),
         password: configService.get('DB_PSWD'),
         database: configService.get('DB_NAME'),
         synchronize: false,
@@ -41,7 +28,7 @@ import { AuthModule } from './auth/auth.module';
         entities: ['**/*.entity{ .ts,.js}'],
         migrations: ['dist/db/migrations/*{.ts,.js}'],
         migrationsRun: false,
-      })
+      }),
     }),
     UserModule,
     AuthModule,
@@ -49,5 +36,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule {}

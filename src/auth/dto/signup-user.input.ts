@@ -1,38 +1,52 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { IsString, Length, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 
-@InputType()
 export class SignupUserInput {
-  @Field()
-  @IsString()
-  @Length(4, 50)
+  @ApiProperty({
+    description: 'Email пользователя',
+    example: 'user@example.com',
+  })
+  @IsEmail()
   email: string;
 
-  @Field()
-  @IsString()
-  @Length(8, 50)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'password is too weak',
+  @ApiProperty({
+    description: 'Пароль пользователя',
+    example: 'Password123!',
+    minLength: 6,
   })
+  @IsString()
+  @MinLength(6)
   password: string;
 
-  @Field()
+  @ApiProperty({
+    description: 'Имя пользователя',
+    example: 'John',
+  })
   @IsString()
-  @Length(2, 50)
   firstName: string;
 
-  @Field()
+  @ApiProperty({
+    description: 'Фамилия пользователя',
+    example: 'Doe',
+  })
   @IsString()
-  @Length(2, 50)
   lastName: string;
 
-  @Field()
+  @ApiProperty({
+    description: 'Номер телефона',
+    example: '+1234567890',
+    required: false,
+  })
+  @IsOptional()
   @IsString()
-  @Length(5, 20)
-  phone: string;
+  phone?: string;
 
-  @Field()
+  @ApiProperty({
+    description: 'Название компании',
+    example: 'Example Corp',
+    required: false,
+  })
+  @IsOptional()
   @IsString()
-  @Length(2, 50)
-  companyName: string;
+  companyName?: string;
 }

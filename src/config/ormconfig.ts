@@ -10,7 +10,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USER,
   password: process.env.DB_PSWD,
   database: process.env.DB_NAME,
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'development',
   bigNumberStrings: true,
   multipleStatements: true,
   logging: ['error', 'schema', 'migration', 'warn'],

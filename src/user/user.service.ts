@@ -1,12 +1,18 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { SigninUserInput } from 'src/auth/dto/singin-user.input';
 import { SignupResponse } from 'src/auth/dto/signup-response.dto';
+import { SignupUserInput } from 'src/auth/dto/signup-user.input';
 
 @Injectable()
 export class UserService {
@@ -20,11 +26,18 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  async createUser(createUserInput: SigninUserInput): Promise<SignupResponse> {
+  async createUser(createUserInput: SignupUserInput): Promise<SignupResponse> {
     const user = this.userRepository.create(createUserInput);
     try {
-      await this.userRepository.save(user);
-      return user;
+      const savedUser = await this.userRepository.save(user);
+      // Возвращаем только нужные поля без пароля
+      return {
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        phone: savedUser.phone,
+        companyName: savedUser.companyName,
+      };
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException('Username already exists.');
@@ -42,7 +55,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: {
         id,
-      }
+      },
     });
 
     if (!user) {
@@ -53,7 +66,7 @@ export class UserService {
   }
 
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
-    return await this.userRepository.save({ id, ...updateUserInput })
+    return await this.userRepository.save({ id, ...updateUserInput });
   }
 
   async remove(id: number) {

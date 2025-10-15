@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
@@ -24,7 +21,16 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(signupUserInput.password, salt);
     signupUserInput.password = hashedPassword;
 
-    return this.userService.createUser(signupUserInput);
+    const user = await this.userService.createUser(signupUserInput);
+
+    // Возвращаем только нужные поля без пароля
+    return {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      companyName: user.companyName,
+    };
   }
 
   async signin(signinUserInput: SigninUserInput): Promise<SigninResponse> {

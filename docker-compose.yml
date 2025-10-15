@@ -1,8 +1,7 @@
-version: '3'
 services:
-  katel-db:
+  b2b-db:
     image: postgres:16.3-alpine3.19
-    container_name: katel-db
+    container_name: b2b-db
     env_file:
       - .env
     environment:
@@ -10,9 +9,9 @@ services:
       POSTGRES_PASSWORD: ${DB_PSWD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - '5543:5432'
+      - '5532:5432'
     volumes:
-      - katel-db:/var/lib/postgresql/data
+      - b2b-db:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
@@ -22,9 +21,9 @@ services:
       retries: 3
     restart: always
 
-  katel-s3:
+  b2b-s3:
     image: minio/minio
-    container_name: katel-s3
+    container_name: b2b-s3
     env_file:
       - .env
     environment:
@@ -35,8 +34,8 @@ services:
       - '5501:9001'
     command: server --address ":9000" --console-address ":9001" /export
     volumes:
-      - katel_s3_data:/export
-      - katel_s3_config:/root/.minio
+      - b2b_s3_data:/export
+      - b2b_s3_config:/root/.minio
     networks:
       - app-network
     healthcheck:
@@ -52,7 +51,7 @@ networks:
 
 volumes:
   node_modules_app:
-  katel_s3_data:
-  katel_s3_config:
-  katel-db:
+  b2b_s3_data:
+  b2b_s3_config:
+  b2b-db:
     driver: local
