@@ -72,7 +72,7 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Обновить пользователя' })
   @ApiParam({ name: 'id', description: 'ID пользователя', type: 'number' })
-  @ApiBody({ type: CreateUserInput  })
+  @ApiBody({ type: UpdateUserInput  })
   @ApiResponse({
     status: 200,
     description: 'Пользователь успешно обновлен',
@@ -81,7 +81,7 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'Пользователь не найден' })
   @ApiResponse({ status: 400, description: 'Неверные данные' })
   @ApiResponse({ status: 401, description: 'Неавторизован' })
-  update(@Param('id') id: string, @Body() updateUserInput: CreateUserInput) {
+  update(@Param('id') id: string, @Body() updateUserInput: UpdateUserInput) {
     return this.userService.update(+id, updateUserInput);
   }
 
