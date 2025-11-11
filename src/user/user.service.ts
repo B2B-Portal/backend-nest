@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConflictException,
@@ -48,13 +48,34 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.userRepository.find();
+    return await this.userRepository.find({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        companyName: true,
+        status: true,
+        role: true,
+      },
+    })
   }
 
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        companyName: true,
+        status: true,
+        role: true,
       },
     });
 
