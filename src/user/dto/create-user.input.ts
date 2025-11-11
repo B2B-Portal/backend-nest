@@ -1,5 +1,6 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import Status from '../enums/status.enum';
 
 export class CreateUserInput {
   @ApiProperty({
@@ -55,4 +56,12 @@ export class CreateUserInput {
   @IsString()
   @IsNotEmpty()
   phone: string;
+
+  @ApiProperty({
+    description: 'Статус пользователя',
+    example: Status.INREVIEW,
+  })
+  @IsEnum(Status, { message: 'Invalid status' })
+  @IsOptional()
+  status?: Status;
 }
