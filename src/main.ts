@@ -52,11 +52,9 @@ async function bootstrap() {
     ],
   });
 
-  await app.listen(3000);
-  console.log('🚀 REST API server is running on http://localhost:3000/api');
-  console.log(
-    '📚 Swagger documentation available at http://localhost:3000/api/docs',
-  );
+  await app.listen(process.env.APP_PORT);
+  console.log(`🚀 REST API server is running on http://localhost:${process.env.APP_PORT}/api`);
+  console.log(`📚 Swagger documentation available at http://localhost:${process.env.APP_PORT}/api/docs`);
 }
 
 bootstrap();
