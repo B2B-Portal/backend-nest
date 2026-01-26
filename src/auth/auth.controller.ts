@@ -49,33 +49,4 @@ export class AuthController {
   ): Promise<SigninResponse> {
     return this.authService.signin(signinUserInput);
   }
-
-  @Get('protected')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Защищенный ресурс (требует JWT токен)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Доступ к защищенному ресурсу',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'This is a protected resource!' },
-        user: {
-          type: 'object',
-          properties: {
-            id: { type: 'number', example: 1 },
-            email: { type: 'string', example: 'user@example.com' },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Неавторизован' })
-  async protectedResource(@CurrentUser() user: User) {
-    return {
-      message: 'This is a protected resource!',
-      user: { id: user.id, email: user.email },
-    };
-  }
 }
