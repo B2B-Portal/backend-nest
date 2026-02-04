@@ -24,7 +24,6 @@ export class CategoryService {
   async findOne(id: number) {
     const category = await this.categoryRepository.findOne({
       where: { id },
-      relations: ['parent'],
     });
     if (!category) {
       throw new NotFoundException('Category does not exist!');
