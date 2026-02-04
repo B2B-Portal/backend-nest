@@ -18,9 +18,7 @@ export class CategoryService {
   }
 
   async findAll() {
-    return await this.categoryRepository.findTrees({
-      relations: ['products'],
-    });
+    return await this.categoryRepository.findTrees();
   }
 
   async findOne(id: number) {
@@ -34,16 +32,12 @@ export class CategoryService {
 
     // Получаем категорию с дочерними элементами (потомками)
     const categoryWithDescendants =
-      await this.categoryRepository.findDescendantsTree(category, {
-        relations: ['products'],
-      });
+      await this.categoryRepository.findDescendantsTree(category);
 
     // Если у категории есть родитель, загружаем его дерево предков
     if (category.parent) {
       const parentWithAncestors =
-        await this.categoryRepository.findAncestorsTree(category.parent, {
-          relations: ['products'],
-        });
+        await this.categoryRepository.findAncestorsTree(category.parent);
       // Добавляем родительскую категорию с её предками к результату
       categoryWithDescendants.parent = parentWithAncestors;
     }
