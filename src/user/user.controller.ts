@@ -17,8 +17,8 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from './entities/user.entity';
 
@@ -31,7 +31,7 @@ export class UserController {
 
   @Post()
   @ApiOperation({ summary: 'Создать нового пользователя' })
-  @ApiBody({ type: CreateUserInput })
+  @ApiBody({ type: CreateUserDto })
   @ApiResponse({
     status: 201,
     description: 'Пользователь успешно создан',
@@ -39,8 +39,8 @@ export class UserController {
   })
   @ApiResponse({ status: 400, description: 'Неверные данные' })
   @ApiResponse({ status: 401, description: 'Неавторизован' })
-  create(@Body() createUserInput: CreateUserInput) {
-    return this.userService.create(createUserInput);
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
   }
 
   @Get()
@@ -72,7 +72,7 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Обновить пользователя' })
   @ApiParam({ name: 'id', description: 'ID пользователя', type: 'number' })
-  @ApiBody({ type: UpdateUserInput  })
+  @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
     status: 200,
     description: 'Пользователь успешно обновлен',
@@ -81,8 +81,8 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'Пользователь не найден' })
   @ApiResponse({ status: 400, description: 'Неверные данные' })
   @ApiResponse({ status: 401, description: 'Неавторизован' })
-  update(@Param('id') id: string, @Body() updateUserInput: UpdateUserInput) {
-    return this.userService.update(+id, updateUserInput);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(+id, updateUserDto);
   }
 
   @Delete(':id')

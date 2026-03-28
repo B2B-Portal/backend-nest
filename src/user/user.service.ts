@@ -1,4 +1,4 @@
-import { Not, Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConflictException,
@@ -8,9 +8,8 @@ import {
 } from '@nestjs/common';
 
 import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
-import { SigninUserInput } from 'src/auth/dto/singin-user.input';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { SignupResponse } from 'src/auth/dto/signup-response.dto';
 import { SignupUserInput } from 'src/auth/dto/signup-user.input';
 
@@ -21,8 +20,10 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  create(createUserInput: CreateUserInput): Promise<User> {
-    const newUser = this.userRepository.create(createUserInput);
+  create(createUserDto: CreateUserDto): Promise<User> {
+    const newUser = this.userRepository.create(
+      createUserDto as DeepPartial<User>,
+    );
     return this.userRepository.save(newUser);
   }
 
@@ -48,7 +49,7 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.userRepository.find({
+    return this.userRepository.find({
       select: {
         id: true,
         email: true,
@@ -56,10 +57,12 @@ export class UserService {
         lastName: true,
         phone: true,
         companyName: true,
+        address: true,
+        city: true,
         status: true,
         role: true,
       },
-    })
+    });
   }
 
   async findOne(id: number): Promise<User> {
@@ -74,6 +77,8 @@ export class UserService {
         lastName: true,
         phone: true,
         companyName: true,
+        address: true,
+        city: true,
         status: true,
         role: true,
       },
@@ -86,19 +91,22 @@ export class UserService {
     }
   }
 
-  async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
-    return await this.userRepository.save({ id, ...updateUserInput });
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.preload({
+      id,
+      ...updateUserDto,
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException('User does not exist!');
+    }
+
+    return this.userRepository.save(existingUser);
   }
 
   async remove(id: number) {
-    const userExists = await this.findOne(id);
-
-    if (!userExists) {
-      throw new NotFoundException('User does not exist!');
-    } else {
-      const user = await this.userRepository.softDelete(id);
-      return user;
-    }
+    await this.findOne(id);
+    return this.userRepository.softDelete(id);
   }
 
   async getUser(email: string): Promise<User> {
