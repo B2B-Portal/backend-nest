@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  OneToMany,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
@@ -9,6 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
+import { ProductVariant } from './product-variant.entity';
 
 @Entity()
 export class Product {
@@ -36,6 +38,12 @@ export class Product {
   @ManyToOne(() => Category, (category) => category.products)
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  @OneToMany(() => ProductVariant, (variant) => variant.product, {
+    cascade: true,
+    orphanedRowAction: 'delete',
+  })
+  variants: ProductVariant[];
 
   @CreateDateColumn({
     type: 'timestamp',

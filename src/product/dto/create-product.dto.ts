@@ -1,6 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Category } from "../../category/entities/category.entity";
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { Category } from '../../category/entities/category.entity';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateProductVariantDto } from './create-product-variant.dto';
 
 export class CreateProductDto {
   @ApiProperty({
@@ -59,4 +68,35 @@ export class CreateProductDto {
   })
   @IsOptional()
   category: Category;
+
+  @ApiProperty({
+    description: 'Product variants for different attribute combinations',
+    required: false,
+    type: [CreateProductVariantDto],
+    example: [
+      {
+        sku: 'IPHONE-15-BLACK-128',
+        price: 899,
+        quantity: 12,
+        attributeValues: [
+          { attributeId: 1, optionId: 10 },
+          { attributeId: 2, optionId: 21 },
+        ],
+      },
+      {
+        sku: 'IPHONE-15-BLUE-256',
+        price: 999,
+        quantity: 5,
+        attributeValues: [
+          { attributeId: 1, optionId: 11 },
+          { attributeId: 2, optionId: 22 },
+        ],
+      },
+    ],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProductVariantDto)
+  variants?: CreateProductVariantDto[];
 }

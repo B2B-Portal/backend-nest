@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Product } from '../../product/entities/product.entity';
+import { CategoryProductAttribute } from '../../product/entities/category-product-attribute.entity';
 
 @Entity()
 @Tree('closure-table')
@@ -43,6 +44,12 @@ export class Category {
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
+
+  @OneToMany(
+    () => CategoryProductAttribute,
+    (categoryAttribute) => categoryAttribute.category,
+  )
+  productAttributes: CategoryProductAttribute[];
 
   @CreateDateColumn({
     type: 'timestamp',

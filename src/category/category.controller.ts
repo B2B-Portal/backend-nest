@@ -1,4 +1,6 @@
 import {
+  UploadedFile,
+  UseInterceptors,
   Controller,
   Get,
   Post,
@@ -7,15 +9,27 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { MediaService } from '../media/media.service';
+import { CreateMediaDto } from '../media/dto/create-media.dto';
 
 @ApiTags('Category')
 @Controller('category')
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    private readonly mediaService: MediaService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Создание категории' })
@@ -42,6 +56,39 @@ export class CategoryController {
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.categoryService.update(+id, updateCategoryDto);
+  }
+
+  @Post(':id/image')
+  @ApiOperation({ summary: 'Upload category image to S3 and assign to category' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        bucket: {
+          type: 'string',
+          example: 'categories-prod',
+        },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createMediaDto: CreateMediaDto,
+  ) {
+    const uploadResult = await this.mediaService.uploadFile(
+      file,
+      'categories',
+      createMediaDto.bucket,
+    );
+    return this.categoryService.updateImage(+id, uploadResult.url);
   }
 
   @Delete(':id')

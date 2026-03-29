@@ -4,21 +4,28 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TreeRepository } from 'typeorm';
 import { Category } from './entities/category.entity';
+import { MediaService } from '../media/media.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: TreeRepository<Category>,
+    private readonly mediaService: MediaService,
   ) {}
 
   create(createCategoryDto: CreateCategoryDto) {
     const category = this.categoryRepository.create(createCategoryDto);
-    return this.categoryRepository.save(category);
+    return this.categoryRepository.save(category).then((savedCategory) => {
+      this.normalizeCategoryImages(savedCategory);
+      return savedCategory;
+    });
   }
 
   async findAll() {
-    return await this.categoryRepository.findTrees();
+    const categories = await this.categoryRepository.findTrees();
+    categories.forEach((category) => this.normalizeCategoryImages(category));
+    return categories;
   }
 
   async findOne(id: number) {
@@ -41,6 +48,7 @@ export class CategoryService {
       categoryWithDescendants.parent = parentWithAncestors;
     }
 
+    this.normalizeCategoryImages(categoryWithDescendants);
     return categoryWithDescendants;
   }
 
@@ -49,8 +57,38 @@ export class CategoryService {
     return await this.categoryRepository.update(id, updateCategoryDto);
   }
 
+  async updateImage(id: number, imageUrl: string) {
+    const category = await this.findOne(id);
+    category.image = imageUrl;
+    const savedCategory = await this.categoryRepository.save(category);
+    this.normalizeCategoryImages(savedCategory);
+    return savedCategory;
+  }
+
   async remove(id: number) {
     await this.findOne(id);
     return this.categoryRepository.delete(id);
+  }
+
+  private normalizeCategoryImages(category: Category, visited = new Set<number>()) {
+    if (!category || visited.has(category.id)) {
+      return;
+    }
+
+    visited.add(category.id);
+    const resolvedImage = this.mediaService.resolvePublicUrl(category.image);
+    if (resolvedImage) {
+      category.image = resolvedImage;
+    }
+
+    if (category.parent) {
+      this.normalizeCategoryImages(category.parent, visited);
+    }
+
+    if (category.children?.length) {
+      category.children.forEach((child) =>
+        this.normalizeCategoryImages(child, visited),
+      );
+    }
   }
 }

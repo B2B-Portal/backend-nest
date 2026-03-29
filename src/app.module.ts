@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { MediaModule } from './media/media.module';
+import { ProductAttributeModule } from './product/product-attribute.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MediaModule } from './media/media.module';
     UserModule,
     AuthModule,
     ProductModule,
+    ProductAttributeModule,
     CategoryModule,
     MediaModule,
   ],
