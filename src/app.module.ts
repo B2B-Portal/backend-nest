@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ProductModule } from './product/product.module';
     AuthModule,
     ProductModule,
     CategoryModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
