@@ -128,3 +128,6 @@ dist
 
 # GraphQL
 schema.gql
+
+# Folders
+/data
