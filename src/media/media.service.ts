@@ -60,6 +60,35 @@ export class MediaService {
     };
   }
 
+  resolvePublicUrl(
+    fileUrlOrKey: string | null | undefined,
+    bucketOverride?: string,
+  ) {
+    if (!fileUrlOrKey) {
+      return null;
+    }
+
+    if (/^https?:\/\//i.test(fileUrlOrKey)) {
+      return fileUrlOrKey;
+    }
+
+    const bucket = bucketOverride?.trim() || this.configService.get<string>('S3_BUCKET');
+    const endpoint = this.configService.get<string>('S3_ENDPOINT');
+    const forcePathStyle =
+      this.configService.get<string>('S3_FORCE_PATH_STYLE') !== 'false';
+
+    if (!bucket || !endpoint) {
+      return fileUrlOrKey;
+    }
+
+    const normalizedValue = fileUrlOrKey.replace(/^\/+/, '');
+    const key = normalizedValue.startsWith(`${bucket}/`)
+      ? normalizedValue.slice(bucket.length + 1)
+      : normalizedValue;
+
+    return this.buildPublicUrl(bucket, key, endpoint, forcePathStyle);
+  }
+
   private buildObjectKey(folder: string | undefined, originalName: string) {
     const safeName = originalName.replace(/[^\w.-]/g, '_');
     const objectName = `${Date.now()}-${randomUUID()}-${safeName}`;
