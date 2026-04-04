@@ -15,6 +15,7 @@ import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { CreateProductVariantAttributeValueDto } from './dto/create-product-variant-attribute-value.dto';
 import { ProductVariantAttributeValue } from './entities/product-variant-attribute-value.entity';
 import { CategoryProductAttribute } from './entities/category-product-attribute.entity';
+import { Category } from '../category/entities/category.entity';
 import { MediaService } from '../media/media.service';
 
 type ProductFilterMap = Record<
@@ -33,12 +34,18 @@ export class ProductService {
     private productAttributeOptionRepository: Repository<ProductAttributeOption>,
     @InjectRepository(CategoryProductAttribute)
     private categoryProductAttributeRepository: Repository<CategoryProductAttribute>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private readonly mediaService: MediaService,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    const { variants, ...productData } = createProductDto;
-    const product = this.productRepository.create(productData);
+    const { variants, category, ...productData } = createProductDto;
+    const resolvedCategory = await this.resolveCategoryOrThrow(category);
+    const product = this.productRepository.create({
+      ...productData,
+      category: resolvedCategory,
+    });
     if (variants?.length) {
       product.variants = await this.buildVariants(variants);
     }
@@ -159,9 +166,12 @@ export class ProductService {
 
   async update(id: number, updateProductDto: UpdateProductDto) {
     const product = await this.findOne(id);
-    const { variants, ...productData } = updateProductDto;
+    const { variants, category, ...productData } = updateProductDto;
 
     Object.assign(product, productData);
+    if (category !== undefined) {
+      product.category = await this.resolveCategoryOrThrow(category);
+    }
     if (variants !== undefined) {
       product.variants = await this.buildVariants(variants);
     }
@@ -253,6 +263,22 @@ export class ProductService {
     }
 
     return values;
+  }
+
+  private async resolveCategoryOrThrow(
+    categoryRef: { id?: number } | null | undefined,
+  ): Promise<Category | undefined> {
+    if (categoryRef == null || categoryRef.id == null) {
+      return undefined;
+    }
+
+    const category = await this.categoryRepository.findOne({
+      where: { id: categoryRef.id },
+    });
+    if (!category) {
+      throw new NotFoundException(`Category ${categoryRef.id} does not exist`);
+    }
+    return category;
   }
 
   private normalizeProductImages(product: Product) {
