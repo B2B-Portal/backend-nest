@@ -22,6 +22,11 @@ export class ProductAttributeController {
     return this.productAttributeService.findAllAttributes();
   }
 
+  @Get(':attributeId')
+  findAttribute(@Param('attributeId') attributeId: string) {
+    return this.productAttributeService.findAttribute(+attributeId);
+  }
+
   @Post(':attributeId/options')
   addOption(
     @Param('attributeId') attributeId: string,

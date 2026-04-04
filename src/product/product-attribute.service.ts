@@ -51,6 +51,17 @@ export class ProductAttributeService {
     });
   }
 
+  async findAttribute(attributeId: number) {
+    const attribute = await this.productAttributeRepository.findOne({
+      where: { id: attributeId },
+      relations: ['options'],
+    });
+    if (!attribute) {
+      throw new NotFoundException(`Attribute ${attributeId} does not exist`);
+    }
+    return attribute;
+  }
+
   async addOption(
     attributeId: number,
     createProductAttributeOptionDto: CreateProductAttributeOptionDto,
